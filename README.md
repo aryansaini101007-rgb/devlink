@@ -1,7 +1,7 @@
 # DevLink
 
 <p align="center">
-  <img src="docs/images/devlink-banner.jpeg" alt="DevLink Banner" width="700">
+  <img src="docs/images/devlink-banner.jpeg" alt="DevLink Banner" width="400">
 </p>
 
 <h1 align="center">DevLink</h1>
