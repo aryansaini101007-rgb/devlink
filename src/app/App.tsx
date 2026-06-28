@@ -335,7 +335,9 @@ function Sidebar({ screen, setScreen, collapsed, setCollapsed }: {
 function AuthScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [showPw, setShowPw] = useState(false);
+
   const [showConfirm, setShowConfirm] = useState(false);
+
 
   const inp = [
     "w-full border border-[#D0D7DE] rounded-md px-3 py-[8px] text-[14px]",
@@ -346,7 +348,8 @@ function AuthScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center px-4 py-10 overflow-y-auto"
+
+      className="min-h-screen flex flex-col items-center  px-4 py-10 overflow-y-auto"
       style={{ background: "#F6F8FA", fontFamily: "'Inter', system-ui, sans-serif" }}
     >
       {/* Logo + brand name */}
@@ -386,12 +389,14 @@ function AuthScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
           <div className="flex-1 h-px bg-[#D0D7DE]" />
         </div>
 
-        {/* Name row — signup only */}
+
+
         {mode === "signup" && (
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div>
               <label className="block text-[13px] font-semibold text-[#1F2328] mb-1">First name</label>
               <input type="text" className={inp} />
+
             </div>
             <div>
               <label className="block text-[13px] font-semibold text-[#1F2328] mb-1">Last name</label>
@@ -409,6 +414,7 @@ function AuthScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
         {/* Password */}
         <div className="mb-1">
           <label className="block text-[13px] font-semibold text-[#1F2328] mb-1">Password</label>
+
           <div className="relative">
             <input type={showPw ? "text" : "password"} className={inp + " pr-9"} />
             <button type="button" onClick={() => setShowPw(s => !s)}
@@ -418,6 +424,7 @@ function AuthScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
           </div>
         </div>
 
+
         {/* Forgot password — signin only */}
         {mode === "signin" && (
           <div className="flex justify-end mt-1.5 mb-4">
@@ -426,6 +433,7 @@ function AuthScreen({ setScreen }: { setScreen: (s: Screen) => void }) {
             </a>
           </div>
         )}
+
 
         {/* Confirm password — signup only */}
         {mode === "signup" && (
