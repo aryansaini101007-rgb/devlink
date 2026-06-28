@@ -10,10 +10,6 @@ jobs:
   frontend:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: frontend
-
     steps:
       - uses: actions/checkout@v4
 
@@ -31,4 +27,4 @@ jobs:
 
       - run: npm run build
 
-      - run: npm audit --audit-level=high   
+      - run: npm audit --audit-level=high
