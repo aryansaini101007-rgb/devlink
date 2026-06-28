@@ -2,9 +2,11 @@ name: Backend CI
 
 on:
   pull_request:
-    branches: [main]
+    branches:
+      - main
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   backend:
@@ -15,20 +17,30 @@ jobs:
         working-directory: backend
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: backend/requirements.txt
 
-      - run: pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install black ruff mypy pytest
 
-      - run: pip install pytest black ruff mypy
+      - name: Check formatting
+        run: black --check .
 
-      - run: black --check .
+      - name: Lint
+        run: ruff check .
 
-      - run: ruff check .
+      - name: Type check
+        run: mypy .
 
-      - run: mypy .
-
-      - run: pytest
+      - name: Run tests
+        run: pytest
