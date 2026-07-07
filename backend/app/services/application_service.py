@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import uuid
 
+from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -28,7 +29,18 @@ class ApplicationService:
         flare_id: uuid.UUID,
         application: ApplicationCreate,
     ) -> Application:
+        existing_application = db.scalar(
+            select(Application).where(
+                Application.applicant_id == applicant_id,
+                Application.project_id == project_id,
+            )
+        )
 
+        if existing_application:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="You have already applied to this project.",
+            )
         db_application = Application(
             applicant_id=applicant_id,
             project_id=project_id,
