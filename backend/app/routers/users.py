@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
 from app.dependencies import get_current_user
+from app.middleware.rate_limit import limiter, SEARCH_LIMIT
 from app.models.user import User
 from app.schemas.user import (
     UserCreate,
@@ -93,7 +94,9 @@ def get_user(
     "/",
     response_model=list[UserResponse],
 )
+@limiter.limit(SEARCH_LIMIT)
 def list_users(
+    request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),

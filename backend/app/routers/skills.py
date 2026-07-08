@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
 from app.dependencies import get_current_user
+from app.middleware.rate_limit import limiter, SEARCH_LIMIT
 from app.models.user import User
 from app.schemas.skill import (
     SkillCreate,
@@ -94,7 +95,9 @@ def get_skill_by_slug(
     "/",
     response_model=list[SkillResponse],
 )
+@limiter.limit(SEARCH_LIMIT)
 def list_skills(
+    request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
     db: Session = Depends(get_db),
@@ -111,7 +114,9 @@ def list_skills(
     "/search/{keyword}",
     response_model=list[SkillResponse],
 )
+@limiter.limit(SEARCH_LIMIT)
 def search_skills(
+    request: Request,
     keyword: str,
     db: Session = Depends(get_db),
 ):

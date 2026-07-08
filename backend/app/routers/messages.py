@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
 
 from app.database.session import get_db
 from app.dependencies import get_current_user
+from app.middleware.rate_limit import limiter, MESSAGE_LIMIT, SEARCH_LIMIT
 from app.models.user import User
 from app.schemas.message import (
     MessageCreate,
@@ -26,7 +27,9 @@ router = APIRouter(
     response_model=MessageResponse,
     status_code=status.HTTP_201_CREATED,
 )
+@limiter.limit(MESSAGE_LIMIT)
 def send_message(
+    request: Request,
     message: MessageCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -99,7 +102,9 @@ def my_messages(
     "/search/{conversation_id}",
     response_model=list[MessageResponse],
 )
+@limiter.limit(SEARCH_LIMIT)
 def search_messages(
+    request: Request,
     conversation_id: uuid.UUID,
     keyword: str = Query(...),
     db: Session = Depends(get_db),
@@ -116,7 +121,9 @@ def search_messages(
     "/{message_id}",
     response_model=MessageResponse,
 )
+@limiter.limit("20/minute")
 def update_message(
+    request: Request,
     message_id: uuid.UUID,
     message: MessageUpdate,
     db: Session = Depends(get_db),
@@ -144,7 +151,9 @@ def update_message(
     "/{message_id}/restore",
     response_model=MessageResponse,
 )
+@limiter.limit("10/minute")
 def restore_message(
+    request: Request,
     message_id: uuid.UUID,
     db: Session = Depends(get_db),
 ):
@@ -170,7 +179,9 @@ def restore_message(
     "/{message_id}",
     response_model=MessageResponse,
 )
+@limiter.limit("10/minute")
 def delete_message(
+    request: Request,
     message_id: uuid.UUID,
     db: Session = Depends(get_db),
 ):
