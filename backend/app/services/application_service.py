@@ -4,6 +4,7 @@ import uuid
 
 from fastapi import HTTPException, status
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.application import (
@@ -52,10 +53,17 @@ class ApplicationService:
         )
 
         db.add(db_application)
-        db.commit()
-        db.refresh(db_application)
 
-        return db_application
+        try:
+            db.commit()
+        except IntegrityError:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="You have already applied to this project.",
+       )
+        db.refresh(db_application)
+        return db_application    
 
     @staticmethod
     def get_application(
