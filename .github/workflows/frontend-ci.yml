@@ -9,9 +9,6 @@ on:
 jobs:
   frontend:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
 
     defaults:
       run:
@@ -27,7 +24,5 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - run: npm ci
-
       - run: npm run build
-
       - run: npm audit --audit-level=high
