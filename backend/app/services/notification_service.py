@@ -26,6 +26,30 @@ class NotificationService:
         notification: NotificationCreate,
     ) -> Notification:
 
+        # Check for existing unread duplicate notification
+        stmt = select(Notification).where(
+            Notification.recipient_id == recipient_id,
+            Notification.type == notification.type,
+            Notification.is_read.is_(False),
+        )
+        if sender_id is not None:
+            stmt = stmt.where(Notification.sender_id == sender_id)
+        if notification.project_id is not None:
+            stmt = stmt.where(Notification.project_id == notification.project_id)
+        if notification.conversation_id is not None:
+            stmt = stmt.where(Notification.conversation_id == notification.conversation_id)
+        if notification.application_id is not None:
+            stmt = stmt.where(Notification.application_id == notification.application_id)
+
+        existing = db.scalars(stmt).first()
+        if existing:
+            existing.message = notification.message
+            existing.title = notification.title
+            existing.created_at = datetime.utcnow()
+            db.commit()
+            db.refresh(existing)
+            return existing
+
         db_notification = Notification(
             recipient_id=recipient_id,
             sender_id=sender_id,

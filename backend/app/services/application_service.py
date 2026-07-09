@@ -9,10 +9,13 @@ from app.models.application import (
     Application,
     ApplicationStatus,
 )
+from app.models.notification import NotificationType
 from app.schemas.application import (
     ApplicationCreate,
     ApplicationUpdate,
 )
+from app.schemas.notification import NotificationCreate
+from app.services.notification_service import NotificationService
 
 
 class ApplicationService:
@@ -101,6 +104,26 @@ class ApplicationService:
         db.commit()
         db.refresh(db_application)
 
+        # Trigger notification
+        project_title = db_application.project.title if db_application.project else "Project"
+        owner_id = db_application.project.owner_id if db_application.project else None
+        
+        notification_data = NotificationCreate(
+            recipient_id=db_application.applicant_id,
+            type=NotificationType.APPLICATION_ACCEPTED,
+            title="Application Accepted",
+            message=f"Your application for project '{project_title}' has been accepted!",
+            action_url=f"/projects/{db_application.project_id}",
+            project_id=db_application.project_id,
+            application_id=db_application.id
+        )
+        NotificationService.create_notification(
+            db=db,
+            recipient_id=db_application.applicant_id,
+            sender_id=owner_id,
+            notification=notification_data
+        )
+
         return db_application
 
     @staticmethod
@@ -113,6 +136,26 @@ class ApplicationService:
 
         db.commit()
         db.refresh(db_application)
+
+        # Trigger notification
+        project_title = db_application.project.title if db_application.project else "Project"
+        owner_id = db_application.project.owner_id if db_application.project else None
+        
+        notification_data = NotificationCreate(
+            recipient_id=db_application.applicant_id,
+            type=NotificationType.APPLICATION_REJECTED,
+            title="Application Rejected",
+            message=f"Your application for project '{project_title}' has been rejected.",
+            action_url=f"/projects/{db_application.project_id}",
+            project_id=db_application.project_id,
+            application_id=db_application.id
+        )
+        NotificationService.create_notification(
+            db=db,
+            recipient_id=db_application.applicant_id,
+            sender_id=owner_id,
+            notification=notification_data
+        )
 
         return db_application
 
