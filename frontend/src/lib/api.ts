@@ -3,12 +3,7 @@ import { toast } from "sonner";
 type JsonPrimitive = string | number | boolean | null;
 type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
 
-export type ApplicationStatus =
-  | "pending"
-  | "reviewing"
-  | "accepted"
-  | "rejected"
-  | "withdrawn";
+export type ApplicationStatus = "pending" | "reviewing" | "accepted" | "rejected" | "withdrawn";
 
 export type UUID = string;
 
@@ -63,13 +58,11 @@ function assertJson<T>(data: unknown): T {
   return data as T;
 }
 
-async function requestJson<TResponse, TBody extends JsonValue | undefined = undefined>(
-  input: {
-    url: string;
-    method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
-    body?: TBody;
-  },
-): Promise<TResponse> {
+async function requestJson<TResponse, TBody extends JsonValue | undefined = undefined>(input: {
+  url: string;
+  method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
+  body?: TBody;
+}): Promise<TResponse> {
   const { baseUrl } = getApiConfig();
 
   const res = await fetch(`${baseUrl}${input.url}`, {
@@ -167,50 +160,3 @@ export function toastError(err: unknown, fallback = "Something went wrong") {
   const message = err instanceof Error ? err.message : fallback;
   toast.error(message);
 }
-
-// ------------------------------------------------------------------
-// Follow / Unfollow
-// ------------------------------------------------------------------
-
-export type FollowStatusResponse = {
-  is_following: boolean;
-  follower_count: number;
-  following_count: number;
-};
-
-export type FollowActionResponse = {
-  id: UUID;
-  follower_id: UUID;
-  following_id: UUID;
-  created_at: string;
-  follower_count: number;
-  following_count: number;
-};
-
-export type UnfollowResponse = {
-  message: string;
-  follower_count: number;
-  following_count: number;
-};
-
-export async function followUser(userId: UUID): Promise<FollowActionResponse> {
-  return requestJson<FollowActionResponse>({
-    url: `/users/${userId}/follow`,
-    method: "POST",
-  });
-}
-
-export async function unfollowUser(userId: UUID): Promise<UnfollowResponse> {
-  return requestJson<UnfollowResponse>({
-    url: `/users/${userId}/follow`,
-    method: "DELETE",
-  });
-}
-
-export async function getFollowStatus(userId: UUID): Promise<FollowStatusResponse> {
-  return requestJson<FollowStatusResponse>({
-    url: `/users/${userId}/follow-status`,
-    method: "GET",
-  });
-}
-
