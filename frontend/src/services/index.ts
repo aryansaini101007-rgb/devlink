@@ -35,7 +35,18 @@ export const messagesService = {
 };
 
 export const notificationsService = {
-  list: () => mock(seed.notifications),
+  list: () => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("devlink-notifications");
+        if (stored) {
+          const local = JSON.parse(stored);
+          return mock([...local, ...seed.notifications]);
+        }
+      } catch (e) {}
+    }
+    return mock(seed.notifications);
+  },
 };
 
 export const hackathonsService = {
