@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import uuid
 
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, status
+
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.dependencies import get_database
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.application import (
@@ -31,7 +34,7 @@ router = APIRouter(
 )
 def create_application(
     application: ApplicationCreate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
@@ -69,7 +72,7 @@ def create_application(
 )
 def get_application(
     application_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_application = ApplicationService.get_application(
@@ -92,7 +95,7 @@ def get_application(
 )
 def my_applications(
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return ApplicationService.list_user_applications(
@@ -107,7 +110,7 @@ def my_applications(
 )
 def project_applications(
     project_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return ApplicationService.list_project_applications(
@@ -123,7 +126,7 @@ def project_applications(
 def update_application(
     application_id: uuid.UUID,
     application: ApplicationUpdate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_application = ApplicationService.get_application(
@@ -150,7 +153,7 @@ def update_application(
 )
 def accept_application(
     application_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
@@ -194,7 +197,7 @@ def accept_application(
 )
 def reject_application(
     application_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
@@ -238,7 +241,7 @@ def reject_application(
 )
 def withdraw_application(
     application_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_application = ApplicationService.get_application(
@@ -264,7 +267,7 @@ def withdraw_application(
 )
 def delete_application(
     application_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     db_application = ApplicationService.get_application(

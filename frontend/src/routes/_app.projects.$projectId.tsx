@@ -4,19 +4,6 @@ import { projectsService } from "@/services";
 import { Card, TagChip, Avatar } from "@/components/shared/primitives";
 import { ArrowLeft, Star, GitFork, Users2, Github, Copy, Check } from "lucide-react";
 import { useState } from "react";
-
-import {
-  ArrowLeft,
-  Star,
-  GitFork,
-  Users2,
-  Github,
-  Copy,
-  Check,
-} from "lucide-react";
-
-import { projectsService } from "@/services";
-import { Card, TagChip, Avatar } from "@/components/shared/primitives";
 import { cn } from "@/lib/utils";
 import { builders, activity, currentUser } from "@/mocks/seed";
 import { Markdown } from "@/components/shared/Markdown";
@@ -58,10 +45,6 @@ function ProjectDetail() {
 
   return (
     <div className="space-y-4">
-      <BackButton
-  to="/projects"
-  label="Back to projects"
-/>
       <BackButton to="/projects" label="Back to projects" />
       <Card className="p-5">
         <div className="flex items-start gap-4">
@@ -80,28 +63,13 @@ function ProjectDetail() {
           <div className="flex shrink-0 items-center gap-3">
             {isOwner && (
               <button
-              type="button"
-              onClick={handleCopyInviteLink}
-              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-2 text-[12px] font-medium text-foreground transition-colors hover:bg-muted"
-              aria-label="Copy project invitation link">
+                type="button"
+                onClick={handleCopyInviteLink}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface px-3 py-2 text-[12px] font-medium text-foreground transition-colors hover:bg-muted"
+                aria-label="Copy project invitation link"
+              >
                 {copied ? <Check size={14} /> : <Copy size={14} />}
                 {copied ? "Copied!" : "Copy invite link"}
-                </button>
-               )}
-               <div className="hidden gap-4 text-[12px] text-muted-foreground sm:flex">
-                <span className="inline-flex items-center gap-1">
-                  <Star size={12} /> {p.stars}
-                  </span>
-                  <span className="inline-flex items-center gap-1">
-                    <GitFork size={12} /> {p.forks}
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <Users2 size={12} /> {p.members}
-                      </span>
-                      </div>
-                      </div>
-                      </div>
-                      </Card>
               </button>
             )}
 

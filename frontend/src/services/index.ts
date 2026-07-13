@@ -105,7 +105,21 @@ export const messagesService = {
 };
 
 export const notificationsService = {
-  list: () => withFallback(() => notificationsApi.list(), seed.notifications),
+  list: async () => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("devlink-notifications");
+        if (stored) {
+          const local = JSON.parse(stored);
+          return [...local, ...seed.notifications];
+        }
+      } catch (error) {
+        console.debug("Failed to load notifications:", error);
+      }
+    }
+
+    return withFallback(() => notificationsApi.list(), seed.notifications);
+  },
 };
 
 export const hackathonsService = {

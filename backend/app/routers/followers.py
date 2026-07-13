@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import uuid
 
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter, Depends, HTTPException, status
+
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.database.session import get_db
+from app.dependencies import get_database
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.schemas.follower import FollowerResponse
@@ -26,7 +29,7 @@ router = APIRouter(
 )
 def follow_user(
     user_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
@@ -76,7 +79,7 @@ def follow_user(
 )
 def unfollow_user(
     user_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
 
@@ -104,7 +107,7 @@ def unfollow_user(
 )
 def my_following(
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return FollowerService.list_following(
@@ -119,7 +122,7 @@ def my_following(
 )
 def user_followers(
     user_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return FollowerService.list_followers(
@@ -134,7 +137,7 @@ def user_followers(
 )
 def user_following(
     user_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return FollowerService.list_following(
@@ -148,7 +151,7 @@ def user_following(
 )
 def follower_count(
     user_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return {
@@ -164,7 +167,7 @@ def follower_count(
 )
 def following_count(
     user_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return {
@@ -181,7 +184,7 @@ def following_count(
 def is_following(
     user_id: uuid.UUID,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return {
@@ -200,7 +203,7 @@ def is_following(
 def mutual_followers(
     user_id: uuid.UUID,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_database),
 ):
 
     return FollowerService.mutual_followers(
