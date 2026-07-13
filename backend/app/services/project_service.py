@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.models.project import Project
 from app.schemas.project import ProjectCreate, ProjectUpdate
+from app.core.cache import cached
 
 
 class ProjectService:
@@ -45,6 +46,7 @@ class ProjectService:
         return db_project
 
     @staticmethod
+    @cached(ttl=300, key_prefix="proj")
     def get_project(
         db: Session,
         project_id: uuid.UUID,
@@ -53,6 +55,7 @@ class ProjectService:
         return db.get(Project, project_id)
 
     @staticmethod
+    @cached(ttl=300, key_prefix="proj")
     def get_by_slug(
         db: Session,
         slug: str,
@@ -62,6 +65,7 @@ class ProjectService:
         return db.scalar(stmt)
 
     @staticmethod
+    @cached(ttl=300, key_prefix="proj")
     def list_projects(
         db: Session,
         skip: int = 0,
@@ -73,6 +77,7 @@ class ProjectService:
         return list(db.scalars(stmt))
 
     @staticmethod
+    @cached(ttl=300, key_prefix="proj")
     def list_owner_projects(
         db: Session,
         owner_id: uuid.UUID,

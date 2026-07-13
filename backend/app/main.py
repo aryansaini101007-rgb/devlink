@@ -25,6 +25,9 @@ async def lifespan(app: FastAPI):
     from app.core.event_handlers import register_all_handlers
     register_all_handlers(event_bus)
 
+    from app.core.cache import cache_manager
+    cache_manager.connect()
+
     # Future startup tasks
     # - Connect database
     # - Connect Redis
@@ -34,6 +37,9 @@ async def lifespan(app: FastAPI):
     yield
 
     print("🛑 DevLink Backend Stopping...")
+    
+    from app.core.cache import cache_manager
+    cache_manager.disconnect()
 
 
 app = FastAPI(
