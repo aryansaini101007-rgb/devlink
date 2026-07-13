@@ -10,6 +10,7 @@ from app.schemas.organization import (
     OrganizationCreate,
     OrganizationUpdate,
 )
+from app.core.cache import cached
 
 
 class OrganizationService:
@@ -57,6 +58,7 @@ class OrganizationService:
         return db.get(Organization, organization_id)
 
     @staticmethod
+    @cached(ttl=300, key_prefix="org")
     def get_by_slug(
         db: Session,
         slug: str,
@@ -67,6 +69,7 @@ class OrganizationService:
         return db.scalar(stmt)
 
     @staticmethod
+    @cached(ttl=300, key_prefix="org")
     def list_organizations(
         db: Session,
         skip: int = 0,

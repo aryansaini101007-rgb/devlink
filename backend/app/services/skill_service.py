@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.models.skill import Skill
 from app.schemas.skill import SkillCreate, SkillUpdate
+from app.core.cache import cached
 
 
 class SkillService:
@@ -43,6 +44,7 @@ class SkillService:
         return db.get(Skill, skill_id)
 
     @staticmethod
+    @cached(ttl=86400, key_prefix="skill")
     def get_by_slug(
         db: Session,
         slug: str,
@@ -52,6 +54,7 @@ class SkillService:
         return db.scalar(stmt)
 
     @staticmethod
+    @cached(ttl=86400, key_prefix="skill")
     def get_by_name(
         db: Session,
         name: str,
@@ -61,6 +64,7 @@ class SkillService:
         return db.scalar(stmt)
 
     @staticmethod
+    @cached(ttl=86400, key_prefix="skill")
     def list_skills(
         db: Session,
         skip: int = 0,
