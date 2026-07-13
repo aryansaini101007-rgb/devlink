@@ -7,7 +7,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.core.logging import log_security_event
+from app.core.events import event_bus
 from app.core.security import (
     create_access_token,
     create_refresh_token,
@@ -88,9 +88,10 @@ class AuthService:
         self.db.commit()
         self.db.refresh(user)
 
-        log_security_event(
-            event="New user registration",
-            user=user.email,
+        event_bus.publish(
+            "USER_REGISTERED",
+            email=user.email,
+            user_id=str(user.id),
         )
 
         return user
@@ -140,9 +141,9 @@ class AuthService:
 
         refresh_token = create_refresh_token(str(user.id))
 
-        log_security_event(
-            event="Successful login",
-            user=user.email,
+        event_bus.publish(
+            "USER_LOGIN",
+            email=user.email,
         )
 
         return {
@@ -200,9 +201,9 @@ class AuthService:
 
         refresh_token = create_refresh_token(str(user.id))
 
-        log_security_event(
-            event="Access token refreshed",
-            user=user.email,
+        event_bus.publish(
+            "ACCESS_TOKEN_REFRESHED",
+            email=user.email,
         )
 
         return {
@@ -239,9 +240,9 @@ class AuthService:
 
         self.db.commit()
 
-        log_security_event(
-            event="Password changed",
-            user=user.email,
+        event_bus.publish(
+            "PASSWORD_CHANGED",
+            email=user.email,
         )
 
         return {
@@ -268,9 +269,9 @@ class AuthService:
 
         self.db.commit()
 
-        log_security_event(
-            event="Email verified",
-            user=user.email,
+        event_bus.publish(
+            "EMAIL_VERIFIED",
+            email=user.email,
         )
 
         return {
@@ -286,9 +287,9 @@ class AuthService:
 
         user = self.get_current_user(user_id)
 
-        log_security_event(
-            event="Logout",
-            user=user.email,
+        event_bus.publish(
+            "USER_LOGOUT",
+            email=user.email,
         )
 
         return {
@@ -314,9 +315,9 @@ class AuthService:
         # Generate reset token
         # Send email
 
-        log_security_event(
-            event="Password reset requested",
-            user=user.email,
+        event_bus.publish(
+            "PASSWORD_RESET_REQUESTED",
+            email=user.email,
         )
 
         return {
@@ -342,9 +343,9 @@ class AuthService:
 
         self.db.commit()
 
-        log_security_event(
-            event="Password reset completed",
-            user=user.email,
+        event_bus.publish(
+            "PASSWORD_RESET_COMPLETED",
+            email=user.email,
         )
 
         return {
