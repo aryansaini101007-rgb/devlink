@@ -7,12 +7,14 @@ from sqlalchemy.pool import StaticPool
 
 import app.core.security
 
+
 class MockPwdContext:
     def hash(self, secret: str, **kwargs) -> str:
         return secret + "_hashed"
 
     def verify(self, secret: str, hash: str, **kwargs) -> bool:
         return hash == secret + "_hashed"
+
 
 app.core.security.pwd_context = MockPwdContext()
 from app.database.base import Base
@@ -64,6 +66,7 @@ def register_and_login(client: TestClient):
     """
     Returns a factory function that registers and logs in a user.
     """
+
     def _register_and_login_func(
         email: str, username: str, password: str = "Passw0rd!"
     ) -> tuple[str, str]:
@@ -83,7 +86,7 @@ def register_and_login(client: TestClient):
         token = r.json().get("access_token")
         if not token:
             raise RuntimeError(f"Login failed: {r.json()}")
-        
+
         me = client.get("/api/users/me", headers={"Authorization": f"Bearer {token}"})
         return me.json()["id"], token
 
