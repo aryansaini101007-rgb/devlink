@@ -38,7 +38,7 @@ class SkillService:
 
         db.add(db_skill)
         try:
-            db.commit()
+            db.flush()
         except IntegrityError:
             db.rollback()
             # The unique normalized-name index closes the check-then-insert
@@ -124,7 +124,7 @@ class SkillService:
             setattr(db_skill, key, value)
 
         try:
-            db.commit()
+            db.flush()
         except IntegrityError as exc:
             db.rollback()
             raise ValueError("Skill already exists") from exc
@@ -138,4 +138,4 @@ class SkillService:
         db_skill: Skill,
     ) -> None:
         db.delete(db_skill)
-        db.commit()
+        db.flush()

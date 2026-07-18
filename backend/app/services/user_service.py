@@ -56,7 +56,7 @@ class UserService:
         )
 
         db.add(db_user)
-        db.commit()
+        db.flush()
         db.refresh(db_user)
 
         return db_user
@@ -73,7 +73,7 @@ class UserService:
         for key, value in data.items():
             setattr(db_user, key, value)
 
-        db.commit()
+        db.flush()
         db.refresh(db_user)
 
         return db_user
@@ -85,7 +85,7 @@ class UserService:
     ) -> None:
 
         db.delete(db_user)
-        db.commit()
+        db.flush()
 
     @staticmethod
     def activate_user(
@@ -95,7 +95,7 @@ class UserService:
 
         db_user.is_active = True
 
-        db.commit()
+        db.flush()
         db.refresh(db_user)
 
         return db_user
@@ -108,7 +108,7 @@ class UserService:
 
         db_user.is_active = False
 
-        db.commit()
+        db.flush()
         db.refresh(db_user)
 
         return db_user
@@ -182,7 +182,7 @@ class UserService:
 
         db_user.is_verified = True
 
-        db.commit()
+        db.flush()
         db.refresh(db_user)
 
         return db_user

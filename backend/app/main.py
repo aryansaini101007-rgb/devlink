@@ -53,6 +53,11 @@ async def lifespan(app: FastAPI):
 
     print("🚀 DevLink Backend Starting...")
 
+    from app.core.events import event_bus
+    from app.core.event_handlers import register_all_handlers
+
+    register_all_handlers(event_bus)
+
     # Future startup tasks
     # - Connect database
     # - Connect Redis
