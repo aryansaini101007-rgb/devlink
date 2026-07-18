@@ -147,6 +147,8 @@ def test_list_projects_does_not_increment_views():
     assert project.views == 0
 
     db.close()
+
+
 import pytest
 import uuid
 from fastapi.testclient import TestClient
