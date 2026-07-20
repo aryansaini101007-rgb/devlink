@@ -14,14 +14,53 @@ from app.models.user import User
 from app.schemas.user import (
     UserCreate,
     UserResponse,
+    UserStats,
     UserUpdate,
+    UsernameAvailabilityResponse,
 )
+from app.core.security import hash_password
 from app.services.auth_service import AuthService
 from app.services.user_service import UserService
+from app.utils.validators import validate_username
 
 router = APIRouter(
     tags=["Users"],
 )
+
+
+@router.get(
+    "/check-username",
+    response_model=UsernameAvailabilityResponse,
+    summary="Check Username Availability",
+)
+def check_username(
+    username: str = Query(..., description="The username to check availability for"),
+    db: Session = Depends(get_database),
+):
+    """
+    Check if a username is available for registration.
+    """
+    try:
+        username = validate_username(username)
+    except HTTPException as exc:
+        raise exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        )
+
+    existing_user = UserService.get_by_username(db, username)
+    if existing_user:
+        return UsernameAvailabilityResponse(
+            available=False,
+            message="Username is already taken.",
+        )
+
+    return UsernameAvailabilityResponse(
+        available=True,
+        message="Username is available.",
+    )
 
 
 @router.post(
@@ -46,7 +85,7 @@ def create_user(
             detail="Username already exists",
         )
 
-    password_hash = AuthService.hash_password(
+    password_hash = hash_password(
         user.password,
     )
 
@@ -106,6 +145,20 @@ def list_users(
         skip,
         limit,
     )
+
+
+@router.get(
+    "/{user_id}/stats",
+    response_model=UserStats,
+)
+def get_user_stats(
+    user_id: uuid.UUID,
+    db: Session = Depends(get_database),
+):
+    if UserService.get_user(db, user_id) is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return UserService.get_user_stats(db, user_id)
 
 
 @router.put(

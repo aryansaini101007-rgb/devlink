@@ -34,6 +34,7 @@ from app.routers import (
     builder_flares,
     conversations,
     followers,
+    health,
     messages,
     notifications,
     organizations,
@@ -142,7 +143,7 @@ async def root():
 
 
 @app.get("/health", tags=["Health"])
-async def health():
+async def health_simple():
     return {
         "status": "healthy",
         "environment": settings.ENVIRONMENT,
@@ -180,7 +181,7 @@ app.include_router(
     notifications.router, prefix="/api/notifications", tags=["Notifications"]
 )
 
-app.include_router(followers.router)
+app.include_router(followers.router, prefix="/api/followers", tags=["Followers"])
 app.include_router(bookmarks.router)
 app.include_router(activities.router)
 app.include_router(conversations.router)
@@ -188,3 +189,4 @@ app.include_router(repositories.router)
 app.include_router(organizations.router)
 app.include_router(applications.router)
 app.include_router(skills.router)
+app.include_router(health.router)

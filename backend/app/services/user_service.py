@@ -2,11 +2,16 @@ from __future__ import annotations
 
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.models.application import Application, ApplicationStatus
+from app.models.follower import Follower
+from app.models.project import Project
 from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate
+from app.core.cache import cached
+from app.schemas.user import UserCreate, UserStats, UserUpdate
 
 
 class UserService:
@@ -24,11 +29,13 @@ class UserService:
         return db.scalar(stmt)
 
     @staticmethod
+    @cached(ttl=300, key_prefix="user")
     def get_by_username(db: Session, username: str) -> User | None:
         stmt = select(User).where(User.username == username)
         return db.scalar(stmt)
 
     @staticmethod
+    @cached(ttl=300, key_prefix="user")
     def list_users(
         db: Session,
         skip: int = 0,
@@ -53,7 +60,7 @@ class UserService:
         )
 
         db.add(db_user)
-        db.commit()
+        db.flush()
         db.refresh(db_user)
 
         return db_user
@@ -70,7 +77,7 @@ class UserService:
         for key, value in data.items():
             setattr(db_user, key, value)
 
-        db.commit()
+        db.flush()
         db.refresh(db_user)
 
         return db_user
@@ -82,7 +89,7 @@ class UserService:
     ) -> None:
 
         db.delete(db_user)
-        db.commit()
+        db.flush()
 
     @staticmethod
     def activate_user(
@@ -92,7 +99,7 @@ class UserService:
 
         db_user.is_active = True
 
-        db.commit()
+        db.flush()
         db.refresh(db_user)
 
         return db_user
@@ -105,10 +112,71 @@ class UserService:
 
         db_user.is_active = False
 
-        db.commit()
+        db.flush()
         db.refresh(db_user)
 
         return db_user
+
+    @staticmethod
+    def get_user_stats(
+        db: Session,
+        user_id: uuid.UUID,
+    ) -> UserStats:
+        projects = (
+            db.scalar(
+                select(func.count())
+                .select_from(Project)
+                .where(Project.owner_id == user_id)
+            )
+            or 0
+        )
+
+        followers = (
+            db.scalar(
+                select(func.count())
+                .select_from(Follower)
+                .where(Follower.following_id == user_id)
+            )
+            or 0
+        )
+
+        following = (
+            db.scalar(
+                select(func.count())
+                .select_from(Follower)
+                .where(Follower.follower_id == user_id)
+            )
+            or 0
+        )
+
+        applications = (
+            db.scalar(
+                select(func.count())
+                .select_from(Application)
+                .where(Application.applicant_id == user_id)
+            )
+            or 0
+        )
+
+        accepted = (
+            db.scalar(
+                select(func.count())
+                .select_from(Application)
+                .where(
+                    Application.applicant_id == user_id,
+                    Application.status == ApplicationStatus.ACCEPTED,
+                )
+            )
+            or 0
+        )
+
+        return UserStats(
+            projects=projects,
+            followers=followers,
+            following=following,
+            applications=applications,
+            accepted=accepted,
+        )
 
     @staticmethod
     def verify_email(
@@ -118,7 +186,7 @@ class UserService:
 
         db_user.is_verified = True
 
-        db.commit()
+        db.flush()
         db.refresh(db_user)
 
         return db_user

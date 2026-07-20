@@ -12,6 +12,9 @@ from sqlalchemy.orm import Session, selectinload
 # pyrefly: ignore [missing-import]
 from sqlalchemy.exc import IntegrityError
 
+# pyrefly: ignore [missing-import]
+from sqlalchemy.orm import Session, selectinload
+
 from app.models.application import (
     Application,
     ApplicationStatus,
@@ -63,7 +66,7 @@ class ApplicationService:
         db.add(db_application)
 
         try:
-            db.commit()
+            db.flush()
         except IntegrityError:
             db.rollback()
             raise HTTPException(
@@ -125,7 +128,7 @@ class ApplicationService:
         for key, value in data.items():
             setattr(db_application, key, value)
 
-        db.commit()
+        db.flush()
         db.refresh(db_application)
 
         return db_application
@@ -138,7 +141,7 @@ class ApplicationService:
 
         db_application.status = ApplicationStatus.ACCEPTED
 
-        db.commit()
+        db.flush()
         db.refresh(db_application)
 
         # Trigger notification
@@ -173,7 +176,7 @@ class ApplicationService:
 
         db_application.status = ApplicationStatus.REJECTED
 
-        db.commit()
+        db.flush()
         db.refresh(db_application)
 
         # Trigger notification
@@ -208,7 +211,7 @@ class ApplicationService:
 
         db_application.status = ApplicationStatus.WITHDRAWN
 
-        db.commit()
+        db.flush()
         db.refresh(db_application)
 
         return db_application
@@ -220,4 +223,4 @@ class ApplicationService:
     ) -> None:
 
         db.delete(db_application)
-        db.commit()
+        db.flush()

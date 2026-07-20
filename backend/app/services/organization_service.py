@@ -10,6 +10,7 @@ from app.schemas.organization import (
     OrganizationCreate,
     OrganizationUpdate,
 )
+from app.core.cache import cached
 
 
 class OrganizationService:
@@ -43,7 +44,7 @@ class OrganizationService:
         )
 
         db.add(db_organization)
-        db.commit()
+        db.flush()
         db.refresh(db_organization)
 
         return db_organization
@@ -57,6 +58,7 @@ class OrganizationService:
         return db.get(Organization, organization_id)
 
     @staticmethod
+    @cached(ttl=300, key_prefix="org")
     def get_by_slug(
         db: Session,
         slug: str,
@@ -71,6 +73,7 @@ class OrganizationService:
         return db.scalar(stmt)
 
     @staticmethod
+    @cached(ttl=300, key_prefix="org")
     def list_organizations(
         db: Session,
         skip: int = 0,
@@ -126,7 +129,7 @@ class OrganizationService:
         for key, value in data.items():
             setattr(db_organization, key, value)
 
-        db.commit()
+        db.flush()
         db.refresh(db_organization)
 
         return db_organization
@@ -139,7 +142,7 @@ class OrganizationService:
 
         db_organization.verified = True
 
-        db.commit()
+        db.flush()
         db.refresh(db_organization)
 
         return db_organization
@@ -152,7 +155,7 @@ class OrganizationService:
 
         db_organization.hiring = True
 
-        db.commit()
+        db.flush()
         db.refresh(db_organization)
 
         return db_organization
@@ -165,7 +168,7 @@ class OrganizationService:
 
         db_organization.hiring = False
 
-        db.commit()
+        db.flush()
         db.refresh(db_organization)
 
         return db_organization
@@ -178,7 +181,7 @@ class OrganizationService:
 
         db_organization.active = False
 
-        db.commit()
+        db.flush()
         db.refresh(db_organization)
 
         return db_organization
@@ -191,7 +194,7 @@ class OrganizationService:
 
         db_organization.active = True
 
-        db.commit()
+        db.flush()
         db.refresh(db_organization)
 
         return db_organization
@@ -203,4 +206,4 @@ class OrganizationService:
     ) -> None:
 
         db.delete(db_organization)
-        db.commit()
+        db.flush()

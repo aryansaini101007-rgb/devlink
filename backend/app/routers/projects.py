@@ -14,12 +14,16 @@ from app.models.user import User
 from app.schemas.project import (
     ProjectCreate,
     ProjectResponse,
+    ProjectStatsResponse,
     ProjectUpdate,
 )
 from app.services.project_service import ProjectService
 
+from app.middleware.idempotency import IdempotentRoute
+
 router = APIRouter(
     tags=["Projects"],
+    route_class=IdempotentRoute,
 )
 
 
@@ -94,6 +98,11 @@ def get_project_by_slug(
             status_code=404,
             detail="Project not found",
         )
+
+    ProjectService.increment_views(
+        db,
+        project,
+    )
 
     return project
 
@@ -284,6 +293,26 @@ def star_project(
     return {
         "message": "Project starred",
     }
+
+
+@router.get(
+    "/{project_id}/stats",
+    response_model=ProjectStatsResponse,
+)
+def get_project_stats(
+    project_id: uuid.UUID,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    project = ProjectService.get_project(db, project_id)
+
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    if project.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Permission denied")
+
+    return ProjectService.get_project_stats(db, project_id)
 
 
 @router.delete(
