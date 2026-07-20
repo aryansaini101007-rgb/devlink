@@ -3,8 +3,6 @@ from __future__ import annotations
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-# pyrefly: ignore [missing-import]
-from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
@@ -131,9 +129,8 @@ def count_messages(
     response_model=list[MessageResponse],
 )
 @limiter.limit(SEARCH_LIMIT)
-def search_messages(
-    request: Request,
 def list_conversation_messages(
+    request: Request,
     conversation_id: uuid.UUID,
     limit: int = Query(100, ge=1, le=500),
     db: Session = Depends(get_database),
