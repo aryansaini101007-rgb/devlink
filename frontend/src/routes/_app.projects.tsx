@@ -126,7 +126,7 @@ function ProjectsPage() {
         </button>
       </div>
 
-      <Card className="p-3">
+      <Card className="p-4">
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative min-w-0 flex-1">
             <Search
