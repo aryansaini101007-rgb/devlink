@@ -12,7 +12,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 # pyrefly: ignore [missing-import]
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.models.application import (
     Application,
@@ -89,7 +89,13 @@ class ApplicationService:
         project_id: uuid.UUID,
     ) -> list[Application]:
 
-        stmt = select(Application).where(Application.project_id == project_id)
+        stmt = (
+            select(Application)
+            .options(
+                selectinload(Application.applicant), selectinload(Application.project)
+            )
+            .where(Application.project_id == project_id)
+        )
 
         return list(db.scalars(stmt))
 
@@ -99,7 +105,13 @@ class ApplicationService:
         applicant_id: uuid.UUID,
     ) -> list[Application]:
 
-        stmt = select(Application).where(Application.applicant_id == applicant_id)
+        stmt = (
+            select(Application)
+            .options(
+                selectinload(Application.applicant), selectinload(Application.project)
+            )
+            .where(Application.applicant_id == applicant_id)
+        )
 
         return list(db.scalars(stmt))
 
