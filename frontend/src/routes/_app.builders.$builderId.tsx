@@ -27,7 +27,7 @@ function BuilderProfile() {
   return (
     <div className="space-y-4">
       <BackButton to="/builders" label="Back to builders" />
-      <Card className="p-6">
+      <Card className="p-4">
         <div className="flex flex-wrap items-start gap-5">
           <Avatar src={b.avatar} alt={b.name} size={96} online={b.online} />
           <div className="min-w-0 flex-1">
@@ -50,7 +50,7 @@ function BuilderProfile() {
           </div>
         </div>
       </Card>
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-3 lg:grid-cols-3">
         <Card className="p-4">
           <p className="text-[13px] font-semibold text-foreground">Match Score</p>
           <p className="mt-2 text-[36px] font-bold text-success">{b.matchScore}%</p>
