@@ -1,12 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { buildersService } from "@/services";
-import { Card, TagChip, Avatar, Skeleton } from "@/components/shared/primitives";
+import { Card, AnimatedCard, TagChip, Avatar, Skeleton } from "@/components/shared/primitives";
 import { HighlightText } from "@/components/shared/HighlightText";
 import { LastActive } from "@/components/shared/LastActive";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
+import { motion } from "framer-motion";
+import { containerVariants } from "@/lib/animations";
 
 export const Route = createFileRoute("/_app/builders")({
   head: () => ({
@@ -79,8 +81,11 @@ function BuildersPage() {
         </div>
       </div>
 
-      <div
+      <motion.div
         className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
         role="status"
         aria-busy={isLoading || undefined}
       >
@@ -106,9 +111,9 @@ function BuildersPage() {
                 </div>
               </Card>
             ))
-          : filtered.map((b) => (
+          : filtered.map((b, i) => (
               <Link key={b.id} to="/builders/$builderId" params={{ builderId: b.id }}>
-                <Card interactive className="p-4 text-center">
+                <AnimatedCard interactive index={i} className="p-4 text-center">
                   <div className="mx-auto w-fit">
                     <Avatar src={b.avatar} alt={b.name} size={64} online={b.online} />
                   </div>
@@ -140,10 +145,10 @@ function BuildersPage() {
                       Message
                     </button>
                   </div>
-                </Card>
+                </AnimatedCard>
               </Link>
             ))}
-      </div>
+      </motion.div>
     </div>
   );
 }
