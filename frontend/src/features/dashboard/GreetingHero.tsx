@@ -69,12 +69,16 @@ function MiniStat({
 }) {
   return (
     <div className="group flex items-center gap-3 rounded-xl border border-border/80 bg-surface/90 p-3.5 shadow-xs transition-all duration-200 hover:border-primary/40 hover:shadow-card backdrop-blur-sm sm:min-w-[160px]">
-      <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl transition-transform duration-200 group-hover:scale-105 ${tint}`}>
+      <span
+        className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl transition-transform duration-200 group-hover:scale-105 ${tint}`}
+      >
         {icon}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{label}</p>
-        <p className="text-[16px] font-extrabold tracking-tight text-foreground leading-tight">
+        <p className="truncate text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          {label}
+        </p>
+        <p className="text-[16px] font-extrabold leading-tight tracking-tight text-foreground">
           <span className={valueTint}>{value}</span>
           {suffix && (
             <span className="text-[11px] font-medium text-muted-foreground">{suffix}</span>
@@ -92,5 +96,3 @@ function MiniStat({
     </div>
   );
 }
-
-
