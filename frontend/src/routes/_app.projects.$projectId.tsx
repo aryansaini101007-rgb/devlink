@@ -2,12 +2,13 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { projectsService } from "@/services";
 import { Card, TagChip, Avatar } from "@/components/shared/primitives";
-import { ArrowLeft, Star, GitFork, Users2, Github, Copy, Check } from "lucide-react";
+import { ArrowLeft, Star, GitFork, Users2, Github, Copy, Check, Eye } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { builders, activity, currentUser } from "@/mocks/seed";
 import { Markdown } from "@/components/shared/Markdown";
 import { BackButton } from "@/components/shared/BackButton";
+import { ShareProjectButton } from "@/components/shared/ShareProjectButton";
 
 export const Route = createFileRoute("/_app/projects/$projectId")({
   head: ({ params }) => ({
@@ -73,9 +74,14 @@ function ProjectDetail() {
               </button>
             )}
 
+            <ShareProjectButton projectTitle={p.name} projectDescription={p.description} />
+
             <div className="hidden gap-4 text-[12px] text-muted-foreground sm:flex">
               <span className="inline-flex items-center gap-1">
                 <Star size={12} /> {p.stars}
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <Eye size={12} /> {p.views}
               </span>
               <span className="inline-flex items-center gap-1">
                 <GitFork size={12} /> {p.forks}

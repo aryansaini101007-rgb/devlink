@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import Optional
+from uuid import UUID
 
 # pyrefly: ignore [missing-import]
 from fastapi import HTTPException, status
@@ -90,7 +91,7 @@ class AuthService:
         )
 
         self.db.add(user)
-        self.db.commit()
+        self.db.flush()
         self.db.refresh(user)
 
         event_bus.publish(
@@ -134,7 +135,7 @@ class AuthService:
 
         user.last_login = datetime.now(timezone.utc)
 
-        self.db.commit()
+        self.db.flush()
 
         access_token = create_access_token(
             str(user.id),
@@ -164,7 +165,12 @@ class AuthService:
     # Get User by ID
     # =====================================================
 
-    def get_user_by_id(self, user_id: str) -> Optional[User]:
+    def get_user_by_id(self, user_id: str | UUID) -> Optional[User]:
+        if isinstance(user_id, str):
+            try:
+                user_id = UUID(user_id)
+            except ValueError:
+                pass
         return self.db.get(User, user_id)
 
     # =====================================================
@@ -213,9 +219,12 @@ class AuthService:
         )
 
         return {
+            "success": True,
+            "message": "Token refreshed successfully.",
             "access_token": access_token,
             "refresh_token": refresh_token,
             "token_type": "bearer",
+            "user": user,
         }
 
     # =====================================================
@@ -244,7 +253,7 @@ class AuthService:
 
         user.password_hash = hash_password(new_password)
 
-        self.db.commit()
+        self.db.flush()
 
         event_bus.publish(
             "PASSWORD_CHANGED",
@@ -273,7 +282,7 @@ class AuthService:
         user.is_verified = True
         user.email_verified_at = datetime.now(timezone.utc)
 
-        self.db.commit()
+        self.db.flush()
 
         event_bus.publish(
             "EMAIL_VERIFIED",
@@ -347,7 +356,7 @@ class AuthService:
 
         user.password_hash = hash_password(new_password)
 
-        self.db.commit()
+        self.db.flush()
 
         event_bus.publish(
             "PASSWORD_RESET_COMPLETED",
