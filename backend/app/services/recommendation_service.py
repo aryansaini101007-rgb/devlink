@@ -28,23 +28,23 @@ Recommendation factors (per the issue)
 * Previous contribs – Number of accepted applications + projects owned.
 * Network           – Small boost for mutual-follow social proximity.
 """
+
 from __future__ import annotations
 
 import logging
 import math
 import uuid
 from dataclasses import dataclass, field
-from typing import Iterable, Optional
+from typing import Optional
 
 # pyrefly: ignore [missing-import]
-from sqlalchemy import and_, func, select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.cache import cache_manager
 from app.models.application import Application, ApplicationStatus
 from app.models.follower import Follower
 from app.models.project import Project
-from app.models.project_member import ProjectMember
 from app.models.project_skill import ProjectSkill
 from app.models.skill import Skill
 from app.models.user import User
@@ -92,17 +92,93 @@ _EXPERIENCE_LEVEL_RANK: dict[str, int] = {
 # Words ignored when extracting "interests" from free-text fields.
 _STOPWORDS: frozenset[str] = frozenset(
     {
-        "the", "a", "an", "and", "or", "of", "to", "in", "on", "for", "with",
-        "is", "are", "be", "by", "at", "as", "it", "this", "that", "from",
-        "we", "our", "you", "your", "i", "my", "me", "us", "them", "they",
-        "he", "she", "his", "her", "who", "what", "where", "when", "how",
-        "build", "building", "built", "create", "creating", "made", "make",
-        "use", "using", "uses", "used", "want", "wants", "looking", "like",
-        "love", "enjoy", "work", "working", "works", "worked", "developer",
-        "engineer", "software", "code", "coding", "programmer", "project",
-        "app", "application", "web", "mobile", "system", "team", "join",
-        "open", "source", "tech", "technology", "technologies", "stack",
-        "experience", "level", "year", "years", "skill", "skills",
+        "the",
+        "a",
+        "an",
+        "and",
+        "or",
+        "of",
+        "to",
+        "in",
+        "on",
+        "for",
+        "with",
+        "is",
+        "are",
+        "be",
+        "by",
+        "at",
+        "as",
+        "it",
+        "this",
+        "that",
+        "from",
+        "we",
+        "our",
+        "you",
+        "your",
+        "i",
+        "my",
+        "me",
+        "us",
+        "them",
+        "they",
+        "he",
+        "she",
+        "his",
+        "her",
+        "who",
+        "what",
+        "where",
+        "when",
+        "how",
+        "build",
+        "building",
+        "built",
+        "create",
+        "creating",
+        "made",
+        "make",
+        "use",
+        "using",
+        "uses",
+        "used",
+        "want",
+        "wants",
+        "looking",
+        "like",
+        "love",
+        "enjoy",
+        "work",
+        "working",
+        "works",
+        "worked",
+        "developer",
+        "engineer",
+        "software",
+        "code",
+        "coding",
+        "programmer",
+        "project",
+        "app",
+        "application",
+        "web",
+        "mobile",
+        "system",
+        "team",
+        "join",
+        "open",
+        "source",
+        "tech",
+        "technology",
+        "technologies",
+        "stack",
+        "experience",
+        "level",
+        "year",
+        "years",
+        "skill",
+        "skills",
     }
 )
 
@@ -168,7 +244,9 @@ def _skills_score(
         return 0.0, []
 
     numerator = sum(
-        _SKILL_LEVEL_WEIGHTS.get(builder_skill_levels.get(sid, SkillLevel.BEGINNER), 0.4)
+        _SKILL_LEVEL_WEIGHTS.get(
+            builder_skill_levels.get(sid, SkillLevel.BEGINNER), 0.4
+        )
         for sid in matched
     )
     denominator = float(len(required_skill_ids))
@@ -303,7 +381,9 @@ class ScoringContext:
     """The target we are matching builders against."""
 
     required_skill_ids: set[uuid.UUID] = field(default_factory=set)
-    context_tokens: set[str] = field(default_factory=set)  # project description OR requester interests
+    context_tokens: set[str] = field(
+        default_factory=set
+    )  # project description OR requester interests
     tech_stack: Optional[str] = None
     minimum_experience: int = 0
 
@@ -355,16 +435,22 @@ class WeightedScoringStrategy(ScoringStrategy):
         )
         skills = skills_raw * w.skills
 
-        interests = _interests_score(
-            candidate.interest_tokens,
-            context.context_tokens,
-        ) * w.interests
+        interests = (
+            _interests_score(
+                candidate.interest_tokens,
+                context.context_tokens,
+            )
+            * w.interests
+        )
 
-        experience = _experience_score(
-            candidate.years_of_experience,
-            candidate.experience_level_rank,
-            context.minimum_experience,
-        ) * w.experience
+        experience = (
+            _experience_score(
+                candidate.years_of_experience,
+                candidate.experience_level_rank,
+                context.minimum_experience,
+            )
+            * w.experience
+        )
 
         technologies_raw, matched_techs = _technologies_score(
             candidate.skill_names,
@@ -374,7 +460,9 @@ class WeightedScoringStrategy(ScoringStrategy):
 
         availability = _availability_score(candidate.user.open_to_work) * w.availability
 
-        contributions = _contributions_score(candidate.contribution_count) * w.contributions
+        contributions = (
+            _contributions_score(candidate.contribution_count) * w.contributions
+        )
 
         network = _network_score(candidate.is_mutual_follower) * w.network
 
@@ -510,20 +598,11 @@ class RecommendationService:
         # ---- 4. Score & rank ------------------------------------------
         results: list[RecommendedBuilder] = []
         for user in candidate_users:
-            skills = user_skills_map.get(user.id, ([], {}))
-            skill_ids, skill_levels = skills
-            skill_names = {
-                sid.skill.name  # type: ignore[union-attr]
-                for sid in (
-                    db.scalars(
-                        select(UserSkill).where(UserSkill.user_id == user.id)
-                    )
-                )
-                if sid.skill is not None
-            } if False else set()  # placeholder, replaced below
+            skill_ids, skill_levels = user_skills_map.get(user.id, ([], {}))
 
-            # We resolve skill names from the eager-loaded relationship.
+            # Resolve skill names + years of experience from the DB.
             skill_names = cls._resolve_skill_names(db, user.id)
+            years_of_experience = cls._resolve_years_of_experience(db, user.id)
 
             candidate = BuilderCandidate(
                 user=user,
@@ -531,20 +610,14 @@ class RecommendationService:
                 skill_levels=skill_levels,
                 skill_names=skill_names,
                 interest_tokens=cls._user_interest_tokens(user),
-                years_of_experience=sum(
-                    lvl for lvl in skill_levels.values()
-                    if isinstance(lvl, int)
-                )
-                if False
-                else cls._resolve_years_of_experience(skill_levels, db, user.id),
+                years_of_experience=years_of_experience,
                 experience_level_rank=_experience_rank(user.experience_level),
                 contribution_count=contribution_counts.get(user.id, 0),
                 is_mutual_follower=user.id in mutual_follower_ids,
             )
 
-            final_score, breakdown, matched_skill_ids, matched_techs = cls._strategy.score(
-                candidate,
-                scoring_context,
+            final_score, breakdown, matched_skill_ids, matched_techs = (
+                cls._strategy.score(candidate, scoring_context)
             )
 
             results.append(
@@ -568,9 +641,7 @@ class RecommendationService:
             )
 
         # Sort by score (desc), then by contribution_count (desc), then username.
-        results.sort(
-            key=lambda r: (-r.score, -r.contribution_count, r.username)
-        )
+        results.sort(key=lambda r: (-r.score, -r.contribution_count, r.username))
         results = results[:limit]
 
         cls._cache_set(cache_key, results)
@@ -581,7 +652,9 @@ class RecommendationService:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _load_project_context(db: Session, project_id: uuid.UUID) -> Optional[ProjectContext]:
+    def _load_project_context(
+        db: Session, project_id: uuid.UUID
+    ) -> Optional[ProjectContext]:
         project = db.get(Project, project_id)
         if project is None:
             return None
@@ -619,10 +692,10 @@ class RecommendationService:
     ) -> dict[uuid.UUID, tuple[list[uuid.UUID], dict[uuid.UUID, SkillLevel]]]:
         if not user_ids:
             return {}
-        rows = db.scalars(
-            select(UserSkill).where(UserSkill.user_id.in_(user_ids))
+        rows = db.scalars(select(UserSkill).where(UserSkill.user_id.in_(user_ids)))
+        result: dict[uuid.UUID, tuple[list[uuid.UUID], dict[uuid.UUID, SkillLevel]]] = (
+            {}
         )
-        result: dict[uuid.UUID, tuple[list[uuid.UUID], dict[uuid.UUID, SkillLevel]]] = {}
         for r in rows:
             entry = result.setdefault(r.user_id, ([], {}))
             entry[0].append(r.skill_id)
@@ -639,11 +712,7 @@ class RecommendationService:
         return {r[0] for r in rows}
 
     @staticmethod
-    def _resolve_years_of_experience(
-        skill_levels: dict[uuid.UUID, SkillLevel],
-        db: Session,
-        user_id: uuid.UUID,
-    ) -> int:
+    def _resolve_years_of_experience(db: Session, user_id: uuid.UUID) -> int:
         """
         Sum ``years_of_experience`` across all of the builder's skills.
 
@@ -693,7 +762,9 @@ class RecommendationService:
         }
 
     @staticmethod
-    def _load_mutual_follower_ids(db: Session, requester_id: uuid.UUID) -> set[uuid.UUID]:
+    def _load_mutual_follower_ids(
+        db: Session, requester_id: uuid.UUID
+    ) -> set[uuid.UUID]:
         """
         Return the set of user IDs that the requester follows AND that
         follow the requester back (mutual followers = trusted network).
@@ -713,9 +784,7 @@ class RecommendationService:
         return following_ids & follower_ids
 
     @staticmethod
-    def _load_candidate_users(
-        db: Session, requester_id: uuid.UUID
-    ) -> list[User]:
+    def _load_candidate_users(db: Session, requester_id: uuid.UUID) -> list[User]:
         """
         Load candidate builders.
 
@@ -743,9 +812,7 @@ class RecommendationService:
         return _tokenize(combined)
 
     @classmethod
-    def _cache_key(
-        cls, context_label: str, requester_id: uuid.UUID, limit: int
-    ) -> str:
+    def _cache_key(cls, context_label: str, requester_id: uuid.UUID, limit: int) -> str:
         return f"{cls.CACHE_PREFIX}:{context_label}:{requester_id}:{limit}"
 
     @classmethod
