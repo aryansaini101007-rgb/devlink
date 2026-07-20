@@ -1,12 +1,5 @@
 import { Card } from "@/components/shared/primitives";
-import {
-  Folder,
-  Mail,
-  MessageCircle,
-  Share2,
-  Users2,
-  type LucideIcon,
-} from "lucide-react";
+import { Folder, Mail, MessageCircle, Share2, Users2, type LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { stats } from "@/mocks/seed";
 import { cn } from "@/lib/utils";
@@ -69,5 +62,3 @@ export function StatsRow() {
     </div>
   );
 }
-
-

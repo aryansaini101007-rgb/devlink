@@ -51,7 +51,10 @@ export function RecentActivity() {
         {data.map((a) => {
           const Icon = kindIcon[a.kind] ?? ActivityIcon;
           return (
-            <li key={a.id} className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-muted/40">
+            <li
+              key={a.id}
+              className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-muted/40"
+            >
               <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary shadow-xs ring-1 ring-primary/20">
                 <Icon size={14} />
               </span>
@@ -59,7 +62,9 @@ export function RecentActivity() {
                 {a.text}{" "}
                 {a.highlight && <span className="font-bold text-primary">{a.highlight}</span>}
               </p>
-              <span className="whitespace-nowrap text-[11px] font-medium text-muted-foreground">{a.ago}</span>
+              <span className="whitespace-nowrap text-[11px] font-medium text-muted-foreground">
+                {a.ago}
+              </span>
             </li>
           );
         })}
@@ -123,7 +128,10 @@ export function InviteRequests() {
       <SectionHeader title="Invite Requests" action="View All" />
       <ul className="divide-y divide-border/60">
         {data.map((r) => (
-          <li key={r.id} className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/30">
+          <li
+            key={r.id}
+            className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/30"
+          >
             <span
               className={cn(
                 "grid h-10 w-10 shrink-0 place-items-center rounded-xl text-lg shadow-xs",
@@ -169,14 +177,18 @@ export function SuggestedBuilders() {
           >
             <Avatar src={b.avatar} alt={b.name} size={60} online={b.online} />
             <p className="mt-3 text-[14px] font-bold text-foreground leading-tight">{b.name}</p>
-            <p className="text-[11px] font-semibold text-muted-foreground leading-tight">{b.role}</p>
+            <p className="text-[11px] font-semibold text-muted-foreground leading-tight">
+              {b.role}
+            </p>
             <p className="text-[11px] text-muted-foreground">{b.country}</p>
             <div className="mt-2.5 flex flex-wrap justify-center gap-1.5">
               {b.skills.slice(0, 2).map((s) => (
                 <TagChip key={s}>{s}</TagChip>
               ))}
             </div>
-            <p className="mt-2 text-[11px] font-semibold text-muted-foreground">{b.yearsExp} yrs exp</p>
+            <p className="mt-2 text-[11px] font-semibold text-muted-foreground">
+              {b.yearsExp} yrs exp
+            </p>
             <p className="text-[11px] font-bold text-emerald-500">{b.matchScore}% Match</p>
             <div className="mt-3 flex w-full gap-1.5">
               <button className="flex-1 rounded-xl bg-primary px-2 py-1.5 text-[11px] font-bold text-primary-foreground shadow-xs transition-opacity hover:opacity-90 active:scale-95">
@@ -200,13 +212,18 @@ export function TrendingProjects() {
       <SectionHeader title="Trending Projects" action="View All" actionTo="/projects" />
       <ul className="divide-y divide-border/60">
         {data.map((p) => (
-          <li key={p.id} className="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-muted/30">
+          <li
+            key={p.id}
+            className="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-muted/30"
+          >
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-muted text-lg shadow-xs">
               {p.icon}
             </span>
             <div className="min-w-0 flex-1">
               <p className="truncate text-[13px] font-bold text-foreground">{p.name}</p>
-              <p className="truncate text-[11px] font-medium text-muted-foreground">{p.stack.join(" · ")}</p>
+              <p className="truncate text-[11px] font-medium text-muted-foreground">
+                {p.stack.join(" · ")}
+              </p>
             </div>
             <div className="flex items-center gap-3 text-[11px] font-semibold text-muted-foreground">
               <span className="inline-flex items-center gap-1">
@@ -229,13 +246,11 @@ export function AIRecommendations() {
       <SectionHeader title="AI Recommendations" action="View All" />
       <div className="space-y-3 px-5 pb-5">
         <p className="text-[13px] font-medium text-foreground leading-relaxed">
-          You need a <span className="font-bold text-foreground">Backend Developer</span> for your project{" "}
-          <span className="font-bold text-primary">AI Chatbot</span>
+          You need a <span className="font-bold text-foreground">Backend Developer</span> for your
+          project <span className="font-bold text-primary">AI Chatbot</span>
         </p>
         <div className="rounded-2xl border border-primary/30 bg-primary-soft/30 p-3.5 shadow-xs">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-primary">
-            Top Match
-          </p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Top Match</p>
           <div className="mt-2 flex items-center gap-3">
             <Avatar
               src="https://api.dicebear.com/9.x/notionists-neutral/svg?seed=Rahul"
@@ -293,7 +308,9 @@ export function MessagesPreview() {
               <Avatar src={c.with.avatar} alt={c.with.name} size={34} online={c.with.online} />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[13px] font-bold text-foreground">{c.with.name}</p>
-                <p className="truncate text-[12px] font-medium text-muted-foreground">{c.preview}</p>
+                <p className="truncate text-[12px] font-medium text-muted-foreground">
+                  {c.preview}
+                </p>
               </div>
               <span className="text-[11px] font-medium text-muted-foreground">{c.ago}</span>
             </Link>
@@ -353,7 +370,12 @@ export function QuickActions() {
             to={a.to}
             className="group flex flex-col items-center gap-2.5 rounded-2xl border border-border/70 bg-card p-3 text-center transition-all duration-200 hover:border-primary/40 hover:shadow-card hover:-translate-y-0.5"
           >
-            <span className={cn("grid h-11 w-11 place-items-center rounded-xl transition-transform duration-200 group-hover:scale-105", a.tint)}>
+            <span
+              className={cn(
+                "grid h-11 w-11 place-items-center rounded-xl transition-transform duration-200 group-hover:scale-105",
+                a.tint,
+              )}
+            >
               <a.icon size={18} />
             </span>
             <span className="text-[11px] font-bold text-foreground leading-tight">{a.label}</span>
@@ -376,14 +398,15 @@ export function UpcomingDeadlines() {
       <SectionHeader title="Upcoming Deadlines" action="View Calendar" />
       <ul className="divide-y divide-border/60">
         {data.map((d) => (
-          <li key={d.id} className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40">
+          <li
+            key={d.id}
+            className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40"
+          >
             <FolderPlus size={15} className="shrink-0 text-muted-foreground" />
             <p className="min-w-0 flex-1 truncate text-[13px] font-medium text-foreground">
               {d.project} — <span className="text-muted-foreground">{d.milestone}</span>
             </p>
-            <span
-              className={cn("whitespace-nowrap text-[11px]", sevTint[d.severity])}
-            >
+            <span className={cn("whitespace-nowrap text-[11px]", sevTint[d.severity])}>
               Due in {d.dueDays} days
             </span>
           </li>
@@ -403,14 +426,19 @@ export function NotificationsFeed() {
       <SectionHeader title="Notifications Feed" action="View All" actionTo="/notifications" />
       <ul className="divide-y divide-border/60">
         {data.map((n) => (
-          <li key={n.id} className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40">
+          <li
+            key={n.id}
+            className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40"
+          >
             <span
               className={cn(
                 "h-2 w-2 shrink-0 rounded-full ring-2 ring-card",
                 n.unread ? "bg-primary animate-pulse" : "bg-transparent",
               )}
             />
-            <p className="min-w-0 flex-1 truncate text-[13px] font-medium text-foreground">{n.text}</p>
+            <p className="min-w-0 flex-1 truncate text-[13px] font-medium text-foreground">
+              {n.text}
+            </p>
             <span className="text-[11px] font-medium text-muted-foreground">{n.ago}</span>
           </li>
         ))}
@@ -418,4 +446,3 @@ export function NotificationsFeed() {
     </Card>
   );
 }
-
