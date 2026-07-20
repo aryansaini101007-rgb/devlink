@@ -12,8 +12,16 @@ type FilterGroup = {
 
 const FILTERS: FilterGroup[] = [
   { id: "all", label: "All Activity", types: undefined },
-  { id: "projects", label: "Projects", types: ["project_created", "project_updated", "project_archived", "project_milestone"] },
-  { id: "applications", label: "Applications", types: ["application_submitted", "application_accepted", "application_rejected"] },
+  {
+    id: "projects",
+    label: "Projects",
+    types: ["project_created", "project_updated", "project_archived", "project_milestone"],
+  },
+  {
+    id: "applications",
+    label: "Applications",
+    types: ["application_submitted", "application_accepted", "application_rejected"],
+  },
   { id: "followers", label: "Followers", types: ["followed_user"] },
   { id: "discussions", label: "Discussions", types: ["discussion_created", "comment_created"] },
   { id: "invitations", label: "Invitations", types: ["team_invitation"] },
@@ -28,17 +36,11 @@ interface ActivityFeedProps {
 
 export function ActivityFeed({ actorId, targetId, targetType }: ActivityFeedProps) {
   const [activeFilterId, setActiveFilterId] = useState<string>("all");
-  
-  const activeFilter = FILTERS.find(f => f.id === activeFilterId);
+
+  const activeFilter = FILTERS.find((f) => f.id === activeFilterId);
   const activityTypes = activeFilter?.types;
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    status,
-  } = useInfiniteQuery({
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
     queryKey: ["activities", { actorId, targetId, targetType, activityTypes }],
     queryFn: async ({ pageParam }) => {
       const response = await activitiesApi.getFeed({
@@ -59,20 +61,23 @@ export function ActivityFeed({ actorId, targetId, targetType }: ActivityFeedProp
   });
 
   const observer = useRef<IntersectionObserver | null>(null);
-  const lastElementRef = useCallback((node: HTMLDivElement | null) => {
-    if (isFetchingNextPage) return;
-    if (observer.current) observer.current.disconnect();
-    
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasNextPage) {
-        fetchNextPage();
-      }
-    });
-    
-    if (node) observer.current.observe(node);
-  }, [isFetchingNextPage, hasNextPage, fetchNextPage]);
+  const lastElementRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (isFetchingNextPage) return;
+      if (observer.current) observer.current.disconnect();
 
-  const activities = data?.pages.flatMap(page => page) || [];
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasNextPage) {
+          fetchNextPage();
+        }
+      });
+
+      if (node) observer.current.observe(node);
+    },
+    [isFetchingNextPage, hasNextPage, fetchNextPage],
+  );
+
+  const activities = data?.pages.flatMap((page) => page) || [];
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
@@ -98,7 +103,10 @@ export function ActivityFeed({ actorId, targetId, targetType }: ActivityFeedProp
       <div className="space-y-4" role="feed" aria-busy={status === "pending" || isFetchingNextPage}>
         {status === "pending" ? (
           <div className="flex justify-center p-8">
-            <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" aria-label="Loading activities" />
+            <Loader2
+              className="w-8 h-8 text-indigo-600 animate-spin"
+              aria-label="Loading activities"
+            />
           </div>
         ) : status === "error" ? (
           <div className="p-8 text-center bg-red-50 text-red-600 rounded-lg border border-red-100">
@@ -107,7 +115,9 @@ export function ActivityFeed({ actorId, targetId, targetType }: ActivityFeedProp
         ) : activities.length === 0 ? (
           <div className="p-12 text-center bg-gray-50 rounded-lg border border-gray-200 border-dashed">
             <p className="text-gray-500 font-medium">No activities found</p>
-            <p className="text-sm text-gray-400 mt-1">Check back later or try a different filter.</p>
+            <p className="text-sm text-gray-400 mt-1">
+              Check back later or try a different filter.
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -119,7 +129,7 @@ export function ActivityFeed({ actorId, targetId, targetType }: ActivityFeedProp
                 </div>
               );
             })}
-            
+
             {isFetchingNextPage && (
               <div className="flex justify-center p-4">
                 <Loader2 className="w-6 h-6 text-indigo-600 animate-spin" />

@@ -14,7 +14,7 @@ function FeedRoute() {
           Stay updated with everything happening across your projects and network.
         </p>
       </div>
-      
+
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <ActivityFeed />
       </div>
